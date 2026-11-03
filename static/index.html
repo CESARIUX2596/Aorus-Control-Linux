@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1016">
+  <title>Lumen · AORUS keyboard studio</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css?v=1.1.1">
+  <script src="/app.js?v=1.1.1" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Lumen home"><img src="/icon.svg" alt=""><span>lumen<span class="brand-dot">.</span></span></a>
+    <div class="sidebar-caption">YOUR PERSONAL LIGHTING STUDIO</div>
+    <nav aria-label="Main navigation">
+      <button class="nav-item active" data-page="studio"><span class="nav-icon">▦</span> Keyboard studio <span class="nav-arrow">↗</span></button>
+      <button class="nav-item" data-page="library"><span class="nav-icon">▤</span> My profiles <span id="profile-count" class="count">0</span></button>
+      <button class="nav-item" data-page="startup"><span class="nav-icon">◴</span> Startup & restore</button>
+    </nav>
+    <div class="sidebar-bottom"><div class="local-indicator"><span class="dot"></span> Entirely on your laptop</div><p>Your keyboard. Your colors.<br>No account, no cloud.</p><div class="version">AORUS CONTROL LINUX <span>v1.1.1</span></div></div>
+  </aside>
+
+  <main>
+    <header class="topbar"><div class="breadcrumbs">Workspace <span>/</span> <strong id="page-name">Keyboard studio</strong></div><div class="topbar-right"><span class="local-pill"><span class="dot"></span> LOCAL</span><a href="https://github.com/CESARIUX2596/Aorus-Control-Linux" target="_blank" rel="noreferrer" aria-label="Project source on GitHub" class="source-link">Source ↗</a></div></header>
+
+    <div id="connection-banner" role="status" class="notice hidden"></div>
+
+    <section id="page-studio" class="page">
+      <div class="page-heading"><div><div class="eyebrow">A LITTLE COLOR GOES A LONG WAY</div><h1>Make some light<span>.</span></h1><p>Set the mood. Make your keyboard feel like yours.</p></div><div class="heading-label"><span class="dot" id="device-dot"></span><span id="device-status">Connecting…</span></div></div>
+      <div class="studio-grid">
+        <div class="studio-main">
+          <section class="preview-panel panel">
+            <div class="panel-bar"><div><span class="tiny-label">KEYBOARD PREVIEW</span><h2 id="design-name">Aurora</h2><p id="design-description" class="design-description"></p></div><span id="applied-status" class="status-tag">Not applied yet</span></div>
+            <div class="keyboard-stage"><div class="ambient ambient-one"></div><div class="ambient ambient-two"></div><div class="keyboard-scroll"><div class="keyboard-shell"><div class="keyboard-top"><span>A O R U S</span><i></i><span>RGB FUSION</span></div><div id="keyboard" class="keyboard" aria-label="Keyboard lighting preview"></div><div class="keyboard-base"><span></span></div></div></div></div>
+            <div class="preview-footer"><span><span class="small-dot"></span> <span id="preview-caption">Custom colors · on-device lighting</span></span><button id="power-button" class="icon-text" title="Turn the lighting on or off">◉ <span>Lights off</span></button></div>
+          </section>
+          <div class="action-bar"><div class="apply-note"><span class="note-icon">↳</span><div><strong>Made to stay with you</strong><p>Apply now. Restore automatically when your laptop boots.</p></div></div><div class="action-buttons"><button id="apply-once" class="button secondary">Apply once</button><button id="apply-remember" class="button primary"><span>Save to keyboard</span><span>↗</span></button></div></div>
+
+          <section class="templates-section"><div class="section-heading"><div><h2>Find your atmosphere</h2><p>More color. More contrast. More you.</p></div><span id="theme-count" class="tiny-label">30 BUILT-IN THEMES</span></div><div class="theme-tools"><div class="filter-row" role="group" aria-label="Filter themes"><button class="filter active" data-filter="All">All themes</button><button class="filter" data-filter="Gradient">Gradients</button><button class="filter" data-filter="Gaming">Gaming</button><button class="filter" data-filter="Palette">Palettes</button><button class="filter" data-filter="Pattern">Patterns</button><button class="filter" data-filter="Animated">Animated</button><button class="filter" data-filter="Solid">Minimal</button></div><label class="theme-search"><span aria-hidden="true">⌕</span><input type="search" id="theme-search" placeholder="Find a theme…" aria-label="Search themes"></label></div><div id="templates" class="template-grid"></div><p id="theme-empty" class="help-text hidden">No matching themes. Try another search or choose All themes.</p></section>
+        </div>
+
+        <aside class="editor panel" aria-label="Lighting controls"><div class="editor-header"><h2>Make it yours</h2><button id="reset-design" class="icon-text" title="Reset this design">↺ Reset</button></div>
+          <div class="control-section"><label for="effect" class="control-label">Lighting effect <span>✧</span></label><select id="effect"></select><p id="effect-help" class="help-text">Choose your own colors for every key.</p></div>
+          <div class="control-section" id="pattern-control"><span class="control-label">Color pattern</span><div id="patterns" class="pattern-buttons" role="group" aria-label="Color pattern"><button data-pattern="gradient" class="active" title="Gradient"><span class="pattern-art gradient"></span>Gradient</button><button data-pattern="solid" title="Solid"><span class="pattern-art solid"></span>Solid</button><button data-pattern="split" title="Three zones"><span class="pattern-art split"></span>Zones</button><button data-pattern="spectrum" title="Spectrum"><span class="pattern-art spectrum"></span>Prism</button><button data-pattern="wasd" title="Bright WASD, arrows, and action keys"><span class="pattern-art gamer"></span>FPS keys</button><button data-pattern="moba" title="Bright QWER spell keys"><span class="pattern-art spell"></span>MOBA keys</button><button data-pattern="rows" title="Horizontal color bands"><span class="pattern-art rows"></span>Bands</button><button data-pattern="checker" title="Alternating key colors"><span class="pattern-art checker"></span>Checker</button><button data-pattern="scatter" title="Scattered lights on a dark background"><span class="pattern-art scatter"></span>Starlight</button></div></div>
+          <div class="control-section"><div class="control-label"><label for="color-0">Your palette</label><button id="reverse-colors" class="icon-text" title="Reverse the color direction">⇄ Reverse</button></div><div class="color-stops"><label class="color-stop"><input type="color" id="color-0" value="#20edba"><span>01</span><span id="hex-0">#20EDBA</span></label><label class="color-stop"><input type="color" id="color-1" value="#34b8ff"><span>02</span><span id="hex-1">#34B8FF</span></label><label class="color-stop"><input type="color" id="color-2" value="#a76aff"><span>03</span><span id="hex-2">#A76AFF</span></label></div><p class="help-text hidden" id="palette-note">Onboard effects use the nearest built-in color.</p></div>
+          <div class="control-section"><div class="control-label"><label for="brightness">Brightness</label><output id="brightness-value" for="brightness">70%</output></div><div class="range-row"><span>☼</span><input type="range" min="0" max="100" value="70" id="brightness"><span>☀</span></div></div>
+          <div class="control-section hidden" id="background-control"><div class="control-label"><label for="background">Background glow</label><output id="background-value" for="background">8%</output></div><input type="range" min="0" max="40" value="8" id="background"><p class="help-text" id="background-help">Turn down the rest of the keyboard so your action keys stand out.</p></div>
+          <div class="control-section" id="speed-control"><div class="control-label"><label for="speed">Animation speed</label><output id="speed-value" for="speed">5 / 10</output></div><input type="range" min="1" max="10" value="5" id="speed"><div class="range-labels"><span>Unhurried</span><span>Electric</span></div></div>
+          <div class="control-section" id="paint-section"><div class="control-label"><span>A personal touch</span><button id="clear-paint" class="icon-text">Clear keys</button></div><div class="paint-row"><input type="color" id="brush-color" value="#ffffff" aria-label="Key painting color"><button id="paint-toggle" class="button secondary">✎ Paint individual keys</button></div><p class="help-text" id="paint-help">Enable the brush, then click a key in the preview.</p></div>
+          <div class="editor-bottom"><button id="save-profile" class="button outline">＋ Save to my profiles</button><p>Keep a favorite. Come back to it anytime.</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="page-library" class="page hidden"><div class="page-heading"><div><div class="eyebrow">A COLLECTION OF GOOD MOODS</div><h1>Your light library<span>.</span></h1><p>Your saved designs, right where you left them.</p></div><button class="button primary" id="library-new">＋ Save current design</button></div><div id="profiles" class="profile-grid"></div><div id="profiles-empty" class="empty-state panel"><span>✧</span><h2>A little space for your favorites.</h2><p>Make a design in the studio, then save it here.</p><button class="button secondary" data-go="studio">Go to the studio ↗</button></div></section>
+
+    <section id="page-startup" class="page hidden"><div class="page-heading"><div><div class="eyebrow">A BRIGHTER HELLO</div><h1>Light from the start<span>.</span></h1><p>Your favorite atmosphere, every time you turn on your laptop.</p></div></div><div class="startup-grid"><section class="panel startup-card"><div class="startup-icon">◴</div><h2>Automatic boot lighting</h2><p>Your saved design is restored by a local system service, before you sign in. It also returns after sleep.</p><div class="startup-setting"><div><strong>Restore when my laptop starts</strong><p id="startup-name">No startup design saved</p></div><label class="switch"><input type="checkbox" id="startup-toggle" aria-label="Restore lighting on boot"><span></span></label></div><button id="startup-current" class="button primary">Use my current design ↗</button><div class="startup-footnote">Saved on this laptop and applied to the keyboard at boot. Permanent keyboard flash storage is not supported.</div></section><section class="panel startup-card"><div class="startup-icon">⌨</div><h2>Ready when you are</h2><p>The local controls start at login. Find <strong>Lumen Keyboard</strong> in your app menu, or bookmark this page.</p><div class="address-card"><span class="dot"></span><code>http://127.0.0.1:8765</code><button id="copy-address" class="icon-text" aria-label="Copy local address">Copy</button></div><div class="privacy-note"><strong>Always local.</strong><p>No account. No external server. Your lighting profiles stay on your laptop.</p></div></section></div></section>
+
+    <footer class="main-footer"><span><span class="dot"></span> Lumen / AORUS Control Linux</span><span>Built for the way you work. And play.</span></footer>
+  </main>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <dialog id="save-dialog"><form id="profile-form"><div class="eyebrow">SAVE THE GOOD STUFF</div><h2>A name for this feeling.</h2><p>Save this design to your local profile library.</p><label for="profile-name">Profile name</label><input id="profile-name" name="name" maxlength="48" required autocomplete="off"><div class="dialog-actions"><button type="button" id="cancel-save" class="button secondary">Cancel</button><button class="button primary" type="submit">Save profile ↗</button></div></form></dialog>
+</body>
+</html>

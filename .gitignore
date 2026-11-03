@@ -1,0 +1,34 @@
+# Python and local tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime state, test evidence, personal profiles
+*.log
+*.pid
+*.tmp
+profiles.json
+startup.json
+test-results/
+playwright-report/
+screenshots/
+.env
+.env.*
+!.env.example
+
+# Proprietary vendor software and private reverse-engineering artifacts
+*.exe
+*.dll
+*.msi
+*.zip
+*.7z
+*.cab
+vendor-private/
+rea-evidence/
