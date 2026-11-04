@@ -5,6 +5,11 @@ It reads Linux hwmon temperatures, CPU usage, NVIDIA GPU temperature/load/power,
 fan RPM when available, and battery percentage/status. Readings refresh every
 five seconds and remain on the machine.
 
+Temperature readings are shown without a fixed count limit. CPU package
+temperature is separate from the numerically ordered physical core sensors;
+other device sensors follow. The reference CPU exposes eight core temperatures
+(Core 0–7) for its eight physical cores and sixteen logical CPUs.
+
 The page also offers power-profile selection through `powerprofilesctl`, Wi-Fi
 through NetworkManager, Bluetooth through BlueZ (with `rfkill` fallback), and
 volume through PipeWire `wpctl`. Each control appears only when its local tool

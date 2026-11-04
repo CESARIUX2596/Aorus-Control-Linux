@@ -85,6 +85,12 @@ def _sensors():
                     label = {"1": "CPU fan", "2": "GPU fan"}.get(index, f'Fan {index}')
                 label = label or f'{name} fan {index}'
                 fans.append({'name': label, 'rpm': int(raw)})
+    def sensor_order(item):
+        core = re.fullmatch(r'Core (\d+)', item['name'])
+        if item['source'] == 'coretemp':
+            return (1, int(core.group(1)), '') if core else (0, 0, item['name'])
+        return (2, 0, item['source'] + ' ' + item['name'])
+    readings.sort(key=sensor_order)
     return readings, max(cpu) if cpu else None, max(gpu) if gpu else None, fans
 
 
@@ -184,7 +190,7 @@ def snapshot():
     return {
         'cpu': {'usage': _cpu_usage(), 'temperature': cpu_temp},
         'gpu': {**(gpu or {}), 'temperature': gpu_temp},
-        'temperature_sensors': readings[:16],
+        'temperature_sensors': readings,
         'fans': fans,
         'fan_control': _fan_control(),
         'battery': battery,

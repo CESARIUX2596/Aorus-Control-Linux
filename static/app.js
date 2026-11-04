@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const copy = v => structuredClone(v);
-const BUILD = '1.2.1';
+const BUILD = '1.2.2';
 let state, config, currentName = 'Aurora', templateId = 'aurora', filter = 'All';
 let painting = false, dirty = false, busy = false, previewSeq = 0, previewTimer, toastTimer;
 let selectedTemplate, previousBrightness = 70;
@@ -123,7 +123,15 @@ function renderSystem(data) {
     systemButton($('audio-actions'), '+ Volume', 'volume', 'up', state.demo);
   }
   const list = $('sensor-list'); list.replaceChildren();
-  for (const item of (data.temperature_sensors || []).slice(0, 8)) {
+  const sensors = data.temperature_sensors || [];
+  const coreCount = sensors.filter(item => item.source === 'coretemp' && /^Core \d+$/.test(item.name)).length;
+  let previousGroup;
+  for (const item of sensors) {
+    const group = item.source === 'coretemp' ? (/^Core \d+$/.test(item.name) ? `CPU cores (${coreCount})` : 'CPU package') : 'Other sensors';
+    if (group !== previousGroup) {
+      const heading = document.createElement('div'); heading.className = 'sensor-group'; heading.textContent = group;
+      list.append(heading); previousGroup = group;
+    }
     const row = document.createElement('div'); row.className = 'sensor-row';
     const label = document.createElement('span'); label.textContent = item.name;
     const value = document.createElement('strong'); value.textContent = temperature(item.celsius);
