@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0c1016">
-  <title>Lumen · AORUS keyboard studio</title>
-  <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css?v=1.1.1">
-  <script src="/app.js?v=1.1.1" defer></script>
+  <title>Lumen · AORUS laptop studio</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css?v=1.2.1"><link rel="stylesheet" href="/system.css?v=1.2.1">
+  <script src="/app.js?v=1.2.1" defer></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -13,10 +13,11 @@
     <div class="sidebar-caption">YOUR PERSONAL LIGHTING STUDIO</div>
     <nav aria-label="Main navigation">
       <button class="nav-item active" data-page="studio"><span class="nav-icon">▦</span> Keyboard studio <span class="nav-arrow">↗</span></button>
+      <button class="nav-item" data-page="system"><span class="nav-icon">◉</span> Laptop controls</button>
       <button class="nav-item" data-page="library"><span class="nav-icon">▤</span> My profiles <span id="profile-count" class="count">0</span></button>
       <button class="nav-item" data-page="startup"><span class="nav-icon">◴</span> Startup & restore</button>
     </nav>
-    <div class="sidebar-bottom"><div class="local-indicator"><span class="dot"></span> Entirely on your laptop</div><p>Your keyboard. Your colors.<br>No account, no cloud.</p><div class="version">AORUS CONTROL LINUX <span>v1.1.1</span></div></div>
+    <div class="sidebar-bottom"><div class="local-indicator"><span class="dot"></span> Entirely on your laptop</div><p>Your keyboard. Your colors.<br>No account, no cloud.</p><div class="version">AORUS CONTROL LINUX <span>v1.2.1</span></div></div>
   </aside>
 
   <main>
@@ -52,6 +53,24 @@
     </section>
 
     <section id="page-library" class="page hidden"><div class="page-heading"><div><div class="eyebrow">A COLLECTION OF GOOD MOODS</div><h1>Your light library<span>.</span></h1><p>Your saved designs, right where you left them.</p></div><button class="button primary" id="library-new">＋ Save current design</button></div><div id="profiles" class="profile-grid"></div><div id="profiles-empty" class="empty-state panel"><span>✧</span><h2>A little space for your favorites.</h2><p>Make a design in the studio, then save it here.</p><button class="button secondary" data-go="studio">Go to the studio ↗</button></div></section>
+
+    <section id="page-system" class="page hidden">
+      <div class="page-heading"><div><div class="eyebrow">YOUR AORUS, AT A GLANCE</div><h1>Laptop controls<span>.</span></h1><p id="system-model">Live temperatures, fans, battery and system controls.</p></div><button id="system-refresh" class="button secondary">↻ Refresh</button></div>
+      <div class="system-grid">
+        <section class="panel system-card"><div class="system-card-title"><div><span class="tiny-label">PROCESSOR</span><h2>CPU</h2></div><span id="cpu-usage" class="system-value">—</span></div><div class="system-bar"><i id="cpu-bar"></i></div><p id="cpu-temperature" class="system-detail">Temperature unavailable</p><span class="system-unit">Usage</span></section>
+        <section class="panel system-card"><div class="system-card-title"><div><span class="tiny-label">GRAPHICS</span><h2>GPU</h2></div><span id="gpu-usage" class="system-value">—</span></div><div class="system-bar"><i id="gpu-bar"></i></div><p id="gpu-detail" class="system-detail">GPU telemetry unavailable</p><span class="system-unit">Utilization</span></section>
+        <section class="panel system-card"><div class="system-card-title"><div><span class="tiny-label">COOLING</span><h2>Fans</h2></div><span id="fan-summary" class="system-value">—</span></div><div id="fan-readings" class="system-detail">Fan speed telemetry unavailable</div><div id="fan-control-area" class="system-control-area"></div></section>
+        <section class="panel system-card"><div class="system-card-title"><div><span class="tiny-label">BATTERY</span><h2>Power</h2></div><span id="battery-value" class="system-value">—</span></div><div class="system-bar"><i id="battery-bar"></i></div><p id="battery-detail" class="system-detail">Battery status unavailable</p><div id="charge-actions" class="system-actions"></div><span class="system-unit">Charge</span></section>
+      </div>
+      <div class="system-lower-grid">
+        <section class="panel system-feature"><span class="tiny-label">PERFORMANCE</span><h2>Power profile</h2><p id="profile-detail" class="system-detail">No supported power-profile service detected.</p><div id="profile-actions" class="system-actions"></div></section>
+        <section class="panel system-feature"><span class="tiny-label">QUICK ACTIONS</span><h2>Wireless</h2><p id="wireless-detail" class="system-detail">System radio status unavailable.</p><div id="wireless-actions" class="system-actions"></div></section>
+        <section class="panel system-feature"><span class="tiny-label">AUDIO</span><h2>Volume</h2><p id="audio-detail" class="system-detail">Default output status unavailable.</p><div id="audio-actions" class="system-actions"></div></section>
+        <section class="panel system-feature"><span class="tiny-label">SENSORS</span><h2>Temperature readings</h2><div id="sensor-list" class="sensor-list"></div></section>
+        <section class="panel system-feature"><span class="tiny-label">BUILT-IN SHORTCUTS</span><h2>Keyboard controls</h2><div class="hotkey-list"><span><kbd>Fn</kbd> + <kbd>Esc</kbd> · Max fan</span><span><kbd>Fn</kbd> + <kbd>F1</kbd> · Sleep</span><span><kbd>Fn</kbd> + <kbd>F2</kbd> · Wi-Fi</span><span><kbd>Fn</kbd> + <kbd>F3</kbd>/<kbd>F4</kbd> · Brightness</span><span><kbd>Fn</kbd> + <kbd>F5</kbd>/<kbd>F6</kbd> · Display / screen</span><span><kbd>Fn</kbd> + <kbd>F7</kbd>–<kbd>F9</kbd> · Mute / volume</span><span><kbd>Fn</kbd> + <kbd>F10</kbd>/<kbd>F11</kbd> · Touchpad / Airplane mode</span><span><kbd>Fn</kbd> + <kbd>Space</kbd> · Keyboard lights</span></div></section>
+      </div>
+      <p id="system-note" class="system-note"></p>
+    </section>
 
     <section id="page-startup" class="page hidden"><div class="page-heading"><div><div class="eyebrow">A BRIGHTER HELLO</div><h1>Light from the start<span>.</span></h1><p>Your favorite atmosphere, every time you turn on your laptop.</p></div></div><div class="startup-grid"><section class="panel startup-card"><div class="startup-icon">◴</div><h2>Automatic boot lighting</h2><p>Your saved design is restored by a local system service, before you sign in. It also returns after sleep.</p><div class="startup-setting"><div><strong>Restore when my laptop starts</strong><p id="startup-name">No startup design saved</p></div><label class="switch"><input type="checkbox" id="startup-toggle" aria-label="Restore lighting on boot"><span></span></label></div><button id="startup-current" class="button primary">Use my current design ↗</button><div class="startup-footnote">Saved on this laptop and applied to the keyboard at boot. Permanent keyboard flash storage is not supported.</div></section><section class="panel startup-card"><div class="startup-icon">⌨</div><h2>Ready when you are</h2><p>The local controls start at login. Find <strong>Lumen Keyboard</strong> in your app menu, or bookmark this page.</p><div class="address-card"><span class="dot"></span><code>http://127.0.0.1:8765</code><button id="copy-address" class="icon-text" aria-label="Copy local address">Copy</button></div><div class="privacy-note"><strong>Always local.</strong><p>No account. No external server. Your lighting profiles stay on your laptop.</p></div></section></div></section>
 

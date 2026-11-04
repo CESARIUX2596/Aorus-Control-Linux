@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const copy = v => structuredClone(v);
-const BUILD = '1.1.1';
+const BUILD = '1.2.1';
 let state, config, currentName = 'Aurora', templateId = 'aurora', filter = 'All';
 let painting = false, dirty = false, busy = false, previewSeq = 0, previewTimer, toastTimer;
 let selectedTemplate, previousBrightness = 70;
@@ -28,8 +28,115 @@ function setBusy(value) {
 function showPage(page) {
   for (const el of document.querySelectorAll('.page')) el.classList.toggle('hidden', el.id !== `page-${page}`);
   for (const el of document.querySelectorAll('.nav-item')) el.classList.toggle('active', el.dataset.page === page);
-  $('page-name').textContent = {studio: 'Keyboard studio', library: 'My profiles', startup: 'Startup & restore'}[page];
+  $('page-name').textContent = {studio: 'Keyboard studio', system: 'Laptop controls', library: 'My profiles', startup: 'Startup & restore'}[page];
   if (page === 'library') renderProfiles();
+}
+function temperature(value) { return Number.isFinite(value) ? `${Math.round(value)}°C` : '—'; }
+function systemButton(container, label, name, value, disabled = false) {
+  const button = document.createElement('button');
+  button.className = 'button secondary'; button.textContent = label; button.disabled = disabled;
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      const result = await api('/api/system/action', {name, value});
+      state.system = result.system; renderSystem(state.system); toast(`${label} applied.`);
+    } catch (error) { toast(error.message, true); }
+    finally { button.disabled = false; }
+  });
+  container.append(button);
+}
+function renderSystem(data) {
+  if (!data) return;
+  $('system-model').textContent = `${data.model || 'AORUS laptop'} · live readings update every 5 seconds`;
+  const cpuUsage = data.cpu?.usage;
+  $('cpu-usage').textContent = Number.isFinite(cpuUsage) ? `${cpuUsage}%` : '…';
+  $('cpu-bar').style.width = `${Math.max(0, Math.min(100, cpuUsage || 0))}%`;
+  $('cpu-temperature').textContent = `Peak CPU core · ${temperature(data.cpu?.temperature)}`;
+  const gpuUsage = data.gpu?.utilization;
+  $('gpu-usage').textContent = Number.isFinite(gpuUsage) ? `${gpuUsage}%` : '—';
+  $('gpu-bar').style.width = `${Math.max(0, Math.min(100, gpuUsage || 0))}%`;
+  const gpuParts = [];
+  if (Number.isFinite(data.gpu?.temperature)) gpuParts.push(temperature(data.gpu.temperature));
+  if (Number.isFinite(data.gpu?.power_watts)) gpuParts.push(`${Math.round(data.gpu.power_watts)} W`);
+  $('gpu-detail').textContent = gpuParts.length ? `GPU temperature · ${gpuParts.join(' · ')}` : 'GPU telemetry unavailable';
+  const fans = data.fans || [];
+  $('fan-summary').textContent = fans.length ? `${fans.length} detected` : '—';
+  $('fan-readings').textContent = fans.length ? fans.map(f => `${f.name} · ${f.rpm.toLocaleString()} RPM`).join(' / ') : 'Fan speed telemetry unavailable';
+  $('fan-control-area').replaceChildren();
+  if (data.fan_control?.available) {
+    for (const mode of data.fan_control.modes) {
+      if (mode.value === 5) continue;
+      systemButton($('fan-control-area'), mode.name, 'fan-mode', String(mode.value), state.demo || mode.value === data.fan_control.current);
+    }
+    if (data.fan_control.speed_available) {
+      const speedHint = document.createElement('p'); speedHint.className = 'help-text';
+      speedHint.textContent = 'Fixed fan output · selecting a preset switches to fixed mode.';
+      $('fan-control-area').append(speedHint);
+      const speedChoices = document.createElement('div'); speedChoices.className = 'fan-speed-presets';
+      for (const value of ['25', '50', '75', '100']) {
+        const raw = Math.round(Number(value) * 255 / 100);
+        systemButton(speedChoices, `${value}%`, 'fan-speed', value,
+          state.demo || (data.fan_control.current === 5 && data.fan_control.custom_speed === raw));
+      }
+      $('fan-control-area').append(speedChoices);
+    }
+  } else {
+    const hint = document.createElement('p'); hint.className = 'help-text';
+    hint.textContent = data.fan_control?.reason || 'Fan mode control is unavailable.';
+    $('fan-control-area').append(hint);
+    const guide = document.createElement('a'); guide.className = 'system-driver-link';
+    guide.href = 'https://github.com/tangalbert919/gigabyte-laptop-wmi/blob/master/USAGE.md';
+    guide.target = '_blank'; guide.rel = 'noreferrer'; guide.textContent = 'Driver setup and supported controls ↗';
+    $('fan-control-area').append(guide);
+    if (!fans.length) {
+      const hotkey = document.createElement('p'); hotkey.className = 'help-text';
+      hotkey.textContent = 'Hardware shortcut: Fn + Esc requests maximum fan speed.';
+      $('fan-control-area').append(hotkey);
+    }
+  }
+  const battery = data.battery;
+  $('battery-value').textContent = battery ? `${battery.percent}%` : '—';
+  $('battery-bar').style.width = `${battery?.percent || 0}%`;
+  $('battery-detail').textContent = battery ? battery.status : 'Battery status unavailable';
+  $('charge-actions').replaceChildren();
+  if (data.charging_limit?.available) {
+    const limit = data.charging_limit;
+    $('battery-detail').textContent += limit.enabled ? ` · charge cap ${limit.limit}%` : ' · charge cap off';
+    systemButton($('charge-actions'), 'Default', 'charge-limit', 'default', state.demo || !limit.enabled);
+    for (const value of ['60', '80', '100']) systemButton($('charge-actions'), `${value}% cap`, 'charge-limit', value, state.demo || (limit.enabled && String(limit.limit) === value));
+  }
+  $('profile-actions').replaceChildren();
+  const profiles = data.power_profiles;
+  $('profile-detail').textContent = profiles ? `Current · ${profiles.current || 'unknown'}` : 'Power profile service is not installed.';
+  if (profiles) for (const profile of profiles.profiles) systemButton($('profile-actions'), profile.replace('-', ' '), 'power-profile', profile, state.demo || profile === profiles.current);
+  $('wireless-actions').replaceChildren();
+  const wireless = data.wireless || {};
+  $('wireless-detail').textContent = `${wireless.wifi ? `Wi-Fi · ${wireless.wifi}` : 'Wi-Fi status unavailable'}${wireless.bluetooth_blocked === null ? '' : ` · Bluetooth · ${wireless.bluetooth_blocked ? 'off' : 'on'}`}`;
+  if (wireless.wifi) systemButton($('wireless-actions'), wireless.wifi === 'enabled' ? 'Turn Wi-Fi off' : 'Turn Wi-Fi on', 'wifi', wireless.wifi === 'enabled' ? 'off' : 'on', state.demo);
+  if (data.features?.bluetooth && wireless.bluetooth_blocked !== null) systemButton($('wireless-actions'), wireless.bluetooth_blocked ? 'Unblock Bluetooth' : 'Block Bluetooth', 'bluetooth', wireless.bluetooth_blocked ? 'on' : 'off', state.demo);
+  $('audio-actions').replaceChildren();
+  const audio = data.audio;
+  $('audio-detail').textContent = audio ? `${audio.percent}%${audio.muted ? ' · muted' : ''}` : 'PipeWire volume control unavailable.';
+  if (audio) {
+    systemButton($('audio-actions'), '− Volume', 'volume', 'down', state.demo);
+    systemButton($('audio-actions'), audio.muted ? 'Unmute' : 'Mute', 'volume', 'mute', state.demo);
+    systemButton($('audio-actions'), '+ Volume', 'volume', 'up', state.demo);
+  }
+  const list = $('sensor-list'); list.replaceChildren();
+  for (const item of (data.temperature_sensors || []).slice(0, 8)) {
+    const row = document.createElement('div'); row.className = 'sensor-row';
+    const label = document.createElement('span'); label.textContent = item.name;
+    const value = document.createElement('strong'); value.textContent = temperature(item.celsius);
+    row.append(label, value); list.append(row);
+  }
+  if (!list.childElementCount) list.textContent = 'No temperature sensors detected.';
+  $('system-note').textContent = state.demo ? 'Preview mode: system controls are disabled.' : 'Fan mode controls appear when the Gigabyte WMI interface is installed and detected. System readings stay on this laptop.';
+}
+async function refreshSystem() {
+  try {
+    const response = await fetch('/api/system');
+    if (response.ok) { state.system = await response.json(); renderSystem(state.system); }
+  } catch { /* Keep the last local reading visible while the service reconnects. */ }
 }
 function markDirty() {
   dirty = true;
@@ -225,7 +332,7 @@ function compatibleState(value) {
     Number.isInteger(key.slot) && key.slot >= 0 && key.slot < 128 &&
     Number.isFinite(key.x) && key.x > 0 && key.x < 19 && key.y === y &&
     Number.isFinite(key.width) && key.width > 0 && [1, 2].includes(key.height)));
-  return validLayout && Array.isArray(value.templates) && value.templates.every(t => Array.isArray(t.preview) && t.preview.length === 128) &&
+  return value.system && validLayout && Array.isArray(value.templates) && value.templates.every(t => Array.isArray(t.preview) && t.preview.length === 128) &&
     Array.isArray(value.profiles) && value.profiles.every(p => Array.isArray(p.preview) && p.preview.length === 128);
 }
 
@@ -247,7 +354,7 @@ async function init() {
     templateId = matchingTemplate?.id || null;
     selectedTemplate = copy(config);
     for (const [value, effect] of Object.entries(state.effects)) { const option = document.createElement('option'); option.value = value; option.textContent = effect.label; $('effect').append(option); }
-    buildKeyboard(); updateControls(); renderTemplates(); renderProfiles(); updateStartup(); connection(); await preview();
+    buildKeyboard(); updateControls(); renderTemplates(); renderProfiles(); updateStartup(); renderSystem(state.system); connection(); await preview();
     if (state.active && !state.demo) {
       $('applied-status').textContent = '✓ Applied to keyboard';
       $('applied-status').classList.add('applied');
@@ -285,6 +392,8 @@ async function init() {
     });
     $('startup-current').addEventListener('click', async () => { await apply(true); });
     $('copy-address').addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin); toast('Local address copied.'); } catch { toast(location.origin); } });
+    $('system-refresh').addEventListener('click', refreshSystem);
+    window.setInterval(refreshSystem, 5000);
   } catch (e) { $('connection-banner').classList.remove('hidden'); $('connection-banner').textContent = e.message; }
 }
 init();

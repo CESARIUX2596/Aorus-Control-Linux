@@ -26,6 +26,7 @@ Reference system: GIGABYTE AORUS 15P YD, Fedora 43 KDE, keyboard USB
 | Browser console and requests | No JavaScript errors or external requests in the workflow test |
 | Upgrade compatibility | Old API version and missing key-span metadata were rejected before drawing; page recovered automatically with the current service |
 | Installed version 1.1.1 | 101 colored keys, zero rendered overlaps, 30 themes, no JavaScript errors; startup file checksum unchanged |
+| Laptop dashboard 1.2.1 | CPU/GPU temperatures and CPU/GPU fan RPM visible; Normal/Silent/Gaming/Auto modes and fixed-speed presets detected |
 | Python/JavaScript/shell syntax | Passed |
 | Full reboot and actual suspend/resume cycle | Not performed; the service and resume hook are installed, but end-to-end cycle timing remains to be verified |
 | Every physical key and animated effect | Not individually verified |

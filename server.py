@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 import uuid
 
 import hardware
+import system_controls
 from model import APP_VERSION, DEFAULT, EFFECTS, LAYOUT, PALETTE, TEMPLATES, checked_name, normalize, render_colors
 
 ROOT = Path(__file__).resolve().parent
@@ -66,7 +67,7 @@ class App:
             device = hardware.status()
             if self.demo:
                 device.update(connected=False,accessible=False,name="Interface preview — no hardware writes")
-            return {"app":"aorus-lumen","version":APP_VERSION,"token":self.token,"demo":self.demo,"device":device,"templates":[self.preview_entry(t) for t in TEMPLATES],"layout":LAYOUT,"effects":EFFECTS,"palette":PALETTE,"profiles":[self.preview_entry(p) for p in self.profiles],"startup":self.boot_state(),"active":self.active,"last_applied":self.last_applied,"default":DEFAULT}
+            return {"app":"aorus-lumen","version":APP_VERSION,"token":self.token,"demo":self.demo,"device":device,"system":system_controls.snapshot(),"templates":[self.preview_entry(t) for t in TEMPLATES],"layout":LAYOUT,"effects":EFFECTS,"palette":PALETTE,"profiles":[self.preview_entry(p) for p in self.profiles],"startup":self.boot_state(),"active":self.active,"last_applied":self.last_applied,"default":DEFAULT}
 
     @staticmethod
     def preview_entry(entry):
@@ -111,6 +112,11 @@ class App:
         if not isinstance(data,dict):
             raise ValueError("Expected a JSON object.")
         with self.lock:
+            if route == "/api/system/action":
+                name, value = data.get("name"), data.get("value")
+                if not isinstance(name, str) or not isinstance(value, str):
+                    raise ValueError("Choose a supported laptop action.")
+                return system_controls.action(name, value, self.demo)
             if route == "/api/preview":
                 config = normalize(data.get("config"))
                 return {"colors":render_colors(config),"config":config}
@@ -148,7 +154,7 @@ class App:
             raise KeyError("Unknown action.")
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "Lumen/1.1"
+    server_version = "Lumen/1.2"
 
     def log_message(self,fmt,*args):
         if args and str(args[1:2]) != "('200',)":
@@ -183,7 +189,9 @@ class Handler(BaseHTTPRequestHandler):
             return self.respond(200,{"app":"aorus-lumen","ok":True})
         if route == "/api/state":
             return self.respond(200,self.server.app.state())
-        assets = {"/":("index.html","text/html; charset=utf-8"),"/style.css":("style.css","text/css; charset=utf-8"),"/app.js":("app.js","text/javascript; charset=utf-8"),"/icon.svg":("icon.svg","image/svg+xml")}
+        if route == "/api/system":
+            return self.respond(200,system_controls.snapshot())
+        assets = {"/":("index.html","text/html; charset=utf-8"),"/style.css":("style.css","text/css; charset=utf-8"),"/system.css":("system.css","text/css; charset=utf-8"),"/app.js":("app.js","text/javascript; charset=utf-8"),"/icon.svg":("icon.svg","image/svg+xml")}
         if route not in assets:
             return self.respond(404,{"error":"Not found."})
         name,mime = assets[route]

@@ -43,22 +43,59 @@ def install(user):
         if stop.returncode:
             raise ValueError("Could not stop the previous app before upgrading: "+stop.stderr.strip())
     DEST.mkdir(parents=True,exist_ok=True)
-    for name in ["model.py","hardware.py","server.py","boot.py","launch.py"]:
+    for name in ["model.py","hardware.py","system_controls.py","server.py","boot.py","launch.py"]:
         write(DEST/name,(SOURCE/name).read_text())
-    for name in ["index.html","style.css","app.js","icon.svg"]:
+    for name in ["index.html","style.css","system.css","app.js","icon.svg"]:
         write(DEST/"static"/name,(SOURCE/"static"/name).read_text())
     write("/usr/local/sbin/aorus-lighting-boot",'''#!/usr/bin/python3 -I
 import os, sys
+from pathlib import Path
 sys.path.insert(0,"/usr/local/lib/aorus-lighting")
 import boot
-if os.geteuid() != 0 or sys.argv[1:] != ["save"]:
-    sys.exit("Only the save operation is supported")
-try:
-    boot.save()
-except (OSError, ValueError, KeyError, TypeError) as exc:
-    sys.exit(str(exc))
+if os.geteuid() != 0:
+    sys.exit("Root access is required")
+if sys.argv[1:] == ["save"]:
+    try:
+        boot.save()
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        sys.exit(str(exc))
+elif len(sys.argv) == 3 and sys.argv[1] == "fan-mode" and sys.argv[2] in {"0", "1", "2", "4", "5"}:
+    node = Path("/sys/devices/platform/aorus_laptop/fan_mode")
+    if not node.exists():
+        sys.exit("Gigabyte laptop WMI fan-control interface is not available")
+    try:
+        node.write_text(sys.argv[2] + "\\n")
+    except OSError as exc:
+        sys.exit(str(exc))
+elif len(sys.argv) == 3 and sys.argv[1] == "fan-speed" and sys.argv[2] in {"25", "50", "75", "100"}:
+    root = Path("/sys/devices/platform/aorus_laptop")
+    mode, speed = root / "fan_mode", root / "fan_custom_speed"
+    if not mode.exists() or not speed.exists():
+        sys.exit("Gigabyte laptop fixed-speed interface is not available")
+    try:
+        mode.write_text("5\\n")
+        speed.write_text(str(round(int(sys.argv[2]) * 255 / 100)) + "\\n")
+    except OSError as exc:
+        sys.exit(str(exc))
+elif len(sys.argv) == 3 and sys.argv[1] == "charge-limit" and sys.argv[2] in {"default", "60", "80", "100"}:
+    root = Path("/sys/devices/platform/aorus_laptop")
+    mode, limit = root / "charge_mode", root / "charge_limit"
+    if not mode.exists() or not limit.exists():
+        sys.exit("Gigabyte laptop charging-limit interface is not available")
+    try:
+        if sys.argv[2] == "default":
+            mode.write_text("0\\n")
+        else:
+            limit.write_text(sys.argv[2] + "\\n")
+            mode.write_text("1\\n")
+    except OSError as exc:
+        sys.exit(str(exc))
+else:
+    sys.exit("Unsupported operation")
 ''',0o755)
-    sudoers = f"{user} ALL=(root) NOPASSWD: /usr/local/sbin/aorus-lighting-boot save\n"
+    helper = "/usr/local/sbin/aorus-lighting-boot"
+    allowed = [f"{helper} save", *(f"{helper} fan-mode {mode}" for mode in (0, 1, 2, 4, 5)), *(f"{helper} fan-speed {speed}" for speed in (25, 50, 75, 100)), *(f"{helper} charge-limit {limit}" for limit in ("default", 60, 80, 100))]
+    sudoers = f"{user} ALL=(root) NOPASSWD: "+", ".join(allowed)+"\n"
     check = subprocess.run(["visudo","-cf","-"],input=sudoers,text=True,capture_output=True)
     if check.returncode:
         raise ValueError("Could not validate the restricted boot helper rule: "+check.stderr)

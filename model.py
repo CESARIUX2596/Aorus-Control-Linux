@@ -2,7 +2,7 @@
 import colorsys
 import re
 
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.2.1"
 
 EFFECTS = {
     "custom": {"label": "Custom colors", "mode": 52},

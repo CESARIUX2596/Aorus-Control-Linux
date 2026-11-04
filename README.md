@@ -1,7 +1,8 @@
 # Lumen · AORUS Control Linux
 
-A local keyboard lighting studio for Linux, with a polished HTML/CSS interface,
-custom colors, saved profiles, and automatic boot lighting. Built for the
+A local AORUS laptop studio for Linux, with a polished HTML/CSS interface,
+keyboard lighting, saved profiles, automatic boot lighting, and live system
+controls. Built for the
 **AORUS 15P YD's `1044:7a3f` Fusion RGB keyboard**.
 
 **Local only:** the interface runs at `http://127.0.0.1:8765`. There is no cloud
@@ -27,6 +28,14 @@ service, account, analytics, external font dependency, or frontend build step.
 - A system service restores that design **before sign-in** and after sleep.
 - A user service starts the local controls at login; an app-menu launcher opens them.
 - Native Linux hidraw access; normal keyboard input remains attached to its driver.
+- A laptop dashboard for CPU/GPU temperatures and load, fans, battery, and
+  available power profiles.
+- Quick Wi-Fi, Bluetooth, and PipeWire volume actions when the matching Linux
+  system services are available.
+- Optional Gigabyte WMI fan modes and charging limits when that external kernel
+  driver is installed and exposes controls for the laptop.
+
+![Laptop telemetry and quick controls](docs/laptop-controls.png)
 
 ## Compatibility
 
@@ -111,7 +120,7 @@ the installer. Don't run the web server as root.
 
 | Location | Purpose |
 | --- | --- |
-| `/usr/local/lib/aorus-lighting/` | Root-owned application code and static assets |
+| `/usr/local/lib/aorus-lighting/` | Root-owned application code and static assets, including laptop telemetry |
 | `/etc/systemd/system/aorus-lighting-restore.service` | Root oneshot that restores the validated profile |
 | `/etc/systemd/user/aorus-lighting.service` | Unprivileged loopback web server |
 | `/usr/lib/systemd/system-sleep/aorus-lighting` | Requests restore after resume |
@@ -120,10 +129,17 @@ the installer. Don't run the web server as root.
 | `/var/lib/aorus-lighting/startup.json` | Validated, root-owned startup profile |
 | `~/.config/aorus-lighting/profiles.json` | User profile library |
 
+Laptop telemetry is read from Linux hwmon, NVIDIA, and power-supply interfaces.
+Power, radio, and audio actions use fixed allow-listed system commands. Optional
+Gigabyte fan and battery controls appear when `/sys/devices/platform/aorus_laptop`
+exposes their interfaces. The reference machine has the Fedora 43 WMI driver
+installed, and Lumen reads both fan RPMs. See [laptop controls](docs/LAPTOP_CONTROLS.md).
+
 The browser cannot choose device paths, send raw packets, or run arbitrary
 commands. State-changing API calls require a per-process token and same-origin
 requests. The server accepts loopback hosts only. The root helper validates the
-profile again and writes to one fixed path; the web server never runs as root.
+startup profile and accepts only fixed fan-mode and charging-limit presets; the
+web server never runs as root.
 
 ## Troubleshooting
 
